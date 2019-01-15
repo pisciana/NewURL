@@ -2,6 +2,8 @@ package com.vhselection.util;
 
 import java.util.Random;
 
+import com.vhselection.model.Url;
+
 /**
  * Class with URL utilities
  * 
@@ -38,11 +40,31 @@ public class UrlUtils {
 	 * Method responsible for shortening the url
 	 * 
 	 * @param <String> longURL to be shortened
-	 * @return <String> shortURL  the url shortened
+	 * @return <Objest> url  the url shortened
 	 */
-	public String shortenURL(String longURL) {		
-		return getKey(longURL);
+	public Url shortenURL(String longURL) {	
+		longURL = cleanURL(longURL);
+		String shortUrl = getKey(longURL);
+		Url url = new Url(shortUrl,longURL);
+		return url;
 	}//shortenURL	
+	
+	private String cleanURL(String longUrl) {
+		
+		if(longUrl.length()>9) {
+		
+			if (longUrl.substring(0, 7).equals("http://"))
+				longUrl = longUrl.substring(7);
+	
+			if (longUrl.substring(0, 8).equals("https://"))
+				longUrl = longUrl.substring(8);
+	
+			if (longUrl.charAt(longUrl.length() - 1) == '/')
+				longUrl = longUrl.substring(0, longUrl.length() - 1);
+		}
+		return longUrl;
+	}
+
 	 
 	/**
 	 * Method responsible for generate key

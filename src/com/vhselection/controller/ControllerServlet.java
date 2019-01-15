@@ -69,7 +69,7 @@ public class ControllerServlet extends HttpServlet {
                 recoveryUrl(request, response);
                 break;
             default:
-            	showNewForm(request, response);
+            	searchUrl(request, response);
                 break;
             }
         } catch (SQLException ex) {
@@ -105,12 +105,38 @@ public class ControllerServlet extends HttpServlet {
 		    request.getSession().setAttribute("error", "Invalid URL ");
 
         }
-	    System.out.println(longUrl);
-    	response.sendRedirect("Redirect.jsp");  
+    	response.sendRedirect("Http://" + longUrl);  
     	
 
 
     }//recoveryUrl
+    
+    private void searchUrl(
+    		HttpServletRequest request, HttpServletResponse response)
+            throws SQLException, IOException, ServletException {
+	    String urlShort = request.getServletPath();
+
+        //String urlShort = request.getParameter("urlShort");
+	    String longUrl = null;	    
+	    if (urlShort != null && !"".equals(urlShort)) {
+	        try {
+	        	longUrl = UrlDao.recoveryLongUrl(urlShort.substring(1));
+			    request.getSession().setAttribute("longUrl", longUrl);
+
+	        } catch (Exception e) {
+	        // handling exception here
+	        e.printStackTrace();
+	        }
+	    }else {
+		    request.getSession().setAttribute("error", "Invalid URL ");
+
+        }
+    	response.sendRedirect("Http://" + longUrl);  
+    	
+
+
+    }//recoveryUrl
+
 
     /**
      * Responsible for redirect to index page
@@ -142,12 +168,13 @@ public class ControllerServlet extends HttpServlet {
             throws SQLException, IOException {
     	
         String urlLong = request.getParameter("urlLong");
+        Url url = null;
+
         if (urlLong != null && !"".equals(urlLong)) {
-			UrlUtils u = new UrlUtils();
-			String urlShort = u.shortenURL(urlLong);
-			Url newUrl = new Url(urlShort, urlLong);
-			UrlDao.insertUrl(newUrl); 
-		    request.getSession().setAttribute("shortUrl", urlShort);
+			UrlUtils u = new UrlUtils();	
+			url = u.shortenURL(urlLong);
+			UrlDao.insertUrl(url); 
+		    request.getSession().setAttribute("shortUrl", url.getUrlShort());
         } else {
 		    request.getSession().setAttribute("error", "Please, fill the URL ");
 
@@ -155,6 +182,8 @@ public class ControllerServlet extends HttpServlet {
         request.getSession().removeAttribute("urlLong");
         response.sendRedirect("./new");
     }//insertUrl
+    
+
   
     
 }
